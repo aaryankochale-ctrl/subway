@@ -77,4 +77,8 @@ function startAuthenticatedGame() {
     authContainer.style.display = 'none';
     const menuContainer = document.getElementById('menu-container');
     menuContainer.style.display = 'flex';
+    
+    if (typeof window.updateHighScoresMenu === 'function') {
+        window.updateHighScoresMenu();
+    }
 }

@@ -399,7 +399,17 @@ function triggerGameOver() {
     gameOver = true;
     gameStarted = false;
     gameOverScreen.style.display = 'block';
-    finalScoreDisplay.innerText = score;
+    
+    // High Score Logic
+    let highScore = parseInt(localStorage.getItem('highScore_' + currentMode) || '0', 10);
+    if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('highScore_' + currentMode, highScore);
+        finalScoreDisplay.innerText = `${score} (New High Score!)`;
+    } else {
+        finalScoreDisplay.innerText = `${score} (High Score: ${highScore})`;
+    }
+    
     cancelAnimationFrame(animationId);
 }
 
@@ -453,7 +463,25 @@ window.start3DGame = function(mode = 'obby') {
     resetGame();
 };
 
+window.updateHighScoresMenu = function() {
+    const obbyScore = localStorage.getItem('highScore_obby') || '0';
+    const forestScore = localStorage.getItem('highScore_forest') || '0';
+    const elObby = document.getElementById('hs-obby');
+    const elForest = document.getElementById('hs-forest');
+    if (elObby) elObby.innerText = obbyScore;
+    if (elForest) elForest.innerText = forestScore;
+};
+
 document.getElementById('restart-btn').addEventListener('click', resetGame);
+
+document.getElementById('back-menu-btn').addEventListener('click', () => {
+    gameOverScreen.style.display = 'none';
+    gameUi.style.display = 'none';
+    gameContainer.style.display = 'none';
+    
+    document.getElementById('menu-container').style.display = 'flex';
+    if (window.updateHighScoresMenu) window.updateHighScoresMenu();
+});
 
 function generateForest() {
     // Starting platform

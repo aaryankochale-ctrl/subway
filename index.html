@@ -28,6 +28,12 @@
     <div id="menu-container" style="display: none;">
         <div class="auth-box">
             <h2>Ready to Run?</h2>
+            
+            <div id="high-scores" style="margin-bottom: 20px; font-size: 14px; text-align: left; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px;">
+                <h3 style="margin-top: 0; margin-bottom: 5px; font-size: 16px;">High Scores</h3>
+                <div>Glass Bridge: <strong id="hs-obby">0</strong></div>
+                <div>Forest Run: <strong id="hs-forest">0</strong></div>
+            </div>
             <div id="level-list">
                 <button class="level-btn" onclick="window.start3DGame('obby')">Play 3D Glass Bridge</button>
                 <button class="level-btn" style="margin-top: 10px;" onclick="window.start3DGame('forest')">Play 3D Forest Run</button>
@@ -42,7 +48,8 @@
         <div id="game-over-screen" style="display: none;">
             <h2>Game Over!</h2>
             <p>Score: <span id="final-score">0</span></p>
-            <button class="level-btn" id="restart-btn">Try Again</button>
+            <button class="level-btn" id="restart-btn" style="margin-bottom: 10px;">Try Again</button>
+            <button class="level-btn" id="back-menu-btn">Back to Menu</button>
         </div>
     </div>
 
