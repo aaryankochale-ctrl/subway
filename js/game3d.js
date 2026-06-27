@@ -51,9 +51,9 @@ const glassMaterial = new THREE.MeshStandardMaterial({
     metalness: 0.1
 });
 const breakableGlassMaterial = new THREE.MeshStandardMaterial({
-    color: 0x88ccff, 
+    color: 0xffaaaa, // Red tint so it is visibly breakable/dangerous!
     transparent: true, 
-    opacity: 0.6, 
+    opacity: 0.45, 
     roughness: 0.1, 
     metalness: 0.1
 }); 
@@ -115,8 +115,8 @@ function generateObby() {
     let currentZ = -10;
     
     for (let i = 0; i < 60; i++) {
-        // Gap
-        currentZ -= (3 + Math.random() * 3);
+        // Gap - reduced slightly to guarantee solvable jumps
+        currentZ -= (2 + Math.random() * 2);
         
         let type = Math.random();
         
@@ -126,7 +126,8 @@ function generateObby() {
             
             // Maybe a hurdle
             if (Math.random() < 0.6) {
-                createHurdle((Math.random() - 0.5) * 4, 1.5, currentZ, 4, 2, 1);
+                // Ensure hurdles aren't fully blocking the path
+                createHurdle((Math.random() - 0.5) * 3, 1.5, currentZ, 3, 2, 1);
             }
             currentZ -= 4;
         } else {
@@ -316,13 +317,20 @@ function updateGame() {
     if (keys3d.a) dx -= currentSpeed;
     if (keys3d.d) dx += currentSpeed;
 
-    let nextPos = player3d.position.clone();
-    nextPos.x += dx;
-    nextPos.z += dz;
+    let nextPosX = player3d.position.clone();
+    nextPosX.x += dx;
+    if (checkCollisions(nextPosX)) {
+        player3d.position.x = nextPosX.x;
+    }
 
-    if (checkCollisions(nextPos)) {
-        player3d.position.x = nextPos.x;
-        player3d.position.z = nextPos.z;
+    let nextPosZ = player3d.position.clone();
+    nextPosZ.z += dz;
+    if (checkCollisions(nextPosZ)) {
+        player3d.position.z = nextPosZ.z;
+    } else {
+        // Player hit a hurdle in the Z direction (head-on collision)
+        triggerGameOver();
+        return;
     }
 
     const skinObj = player3d.userData.skinObj;
@@ -460,13 +468,10 @@ function generateForest() {
         
         createPlatform(0, 0, currentZ, 12, 2, 8, false, false, jungleMaterial);
         
-        // Add hurdles
+        // Add hurdles - limited to 1 per platform to avoid impossible walls
         if (Math.random() < 0.5) {
-            let numHurdles = Math.floor(Math.random() * 3) + 1;
-            for (let h = 0; h < numHurdles; h++) {
-                let xPos = (Math.random() - 0.5) * 8;
-                createHurdle(xPos, 1.5, currentZ + (Math.random()-0.5)*4, 1.5, 2, 1, obstacleMaterial);
-            }
+            let xPos = (Math.random() - 0.5) * 8;
+            createHurdle(xPos, 1.5, currentZ, 1.5, 2, 1, obstacleMaterial);
         }
         
         // Add trees on the sides
