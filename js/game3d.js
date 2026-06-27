@@ -308,10 +308,11 @@ function updateGame() {
     scoreDisplay.innerText = `Score: ${score}`;
 
     let dx = 0;
-    let dz = 0;
+    
+    // Auto-run forward continuously
+    let dz = -currentSpeed;
 
-    if (keys3d.w) dz -= currentSpeed;
-    if (keys3d.s) dz += currentSpeed;
+    // Sideways movement
     if (keys3d.a) dx -= currentSpeed;
     if (keys3d.d) dx += currentSpeed;
 
