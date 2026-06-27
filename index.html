@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Endless Runner</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="auth-container">
+        <div class="auth-box">
+            <h2 id="auth-title">Login</h2>
+            
+            <form id="auth-form">
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <p id="auth-error" class="error-msg" style="display: none;"></p>
+                <button type="submit" id="auth-submit">Login</button>
+            </form>
+            
+            <p class="toggle-text">
+                <span id="toggle-message">Don't have an account?</span> 
+                <a href="#" id="toggle-mode">Sign Up</a>
+            </p>
+        </div>
+    </div>
+
+    <div id="menu-container" style="display: none;">
+        <div class="auth-box">
+            <h2>Ready to Run?</h2>
+            <div id="level-list">
+                <button class="level-btn" data-level="endless" onclick="startGame()">Start Endless Run</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Overlay for the game -->
+    <div id="game-ui" style="display: none;">
+        <div id="score-display">Score: 0</div>
+        <div id="game-over-screen" style="display: none;">
+            <h2>Game Over!</h2>
+            <p>Score: <span id="final-score">0</span></p>
+            <button class="level-btn" id="restart-btn">Try Again</button>
+        </div>
+    </div>
+
+    <div id="game-container" style="display: none;"></div>
+    
+    <div id="debug-log" style="position: absolute; bottom: 10px; left: 10px; color: red; font-family: monospace; z-index: 1000; background: rgba(0,0,0,0.8); padding: 10px; pointer-events: none;"></div>
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            document.getElementById('debug-log').innerHTML += message + '<br>';
+        };
+    </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/skinview3d@3.0.0/bundles/skinview3d.bundle.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/game3d.js"></script>
+</body>
+</html>

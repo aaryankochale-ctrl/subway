@@ -1,0 +1,8 @@
+{
+  "name": "2d-platformer",
+  "version": "1.0.0",
+  "description": "A simple 2D platformer game",
+  "scripts": {
+    "dev": "npx http-server -p 3000 -c-1 ."
+  }
+}
