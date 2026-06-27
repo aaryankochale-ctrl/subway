@@ -29,7 +29,8 @@
         <div class="auth-box">
             <h2>Ready to Run?</h2>
             <div id="level-list">
-                <button class="level-btn" data-level="endless" onclick="startGame()">Start Endless Run</button>
+                <button class="level-btn" onclick="window.start3DGame()">Play 3D Runner</button>
+                <button class="level-btn" style="margin-top: 10px;" onclick="window.start2DGame(1)">Play 2D Game</button>
             </div>
         </div>
     </div>
@@ -46,6 +47,10 @@
 
     <div id="game-container" style="display: none;"></div>
     
+    <div style="text-align: center;">
+        <canvas id="gameCanvas" width="800" height="600" style="display: none; border: 1px solid black; margin: 0 auto; background: #87CEEB;"></canvas>
+    </div>
+    
     <div id="debug-log" style="position: absolute; bottom: 10px; left: 10px; color: red; font-family: monospace; z-index: 1000; background: rgba(0,0,0,0.8); padding: 10px; pointer-events: none;"></div>
     <script>
         window.onerror = function(message, source, lineno, colno, error) {
@@ -55,6 +60,14 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/skinview3d@3.0.0/bundles/skinview3d.bundle.js"></script>
+    
+    <!-- Old 2D Game Scripts -->
+    <script src="js/input.js"></script>
+    <script src="js/level.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/main.js"></script>
+    
+    <!-- New 3D Game Scripts -->
     <script src="js/auth.js"></script>
     <script src="js/game3d.js"></script>
 </body>

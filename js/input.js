@@ -1,4 +1,4 @@
-const keys = {
+const keys2d = {
     right: false,
     left: false,
     up: false
@@ -8,16 +8,16 @@ window.addEventListener('keydown', (e) => {
     switch (e.code) {
         case 'ArrowRight':
         case 'KeyD':
-            keys.right = true;
+            keys2d.right = true;
             break;
         case 'ArrowLeft':
         case 'KeyA':
-            keys.left = true;
+            keys2d.left = true;
             break;
         case 'ArrowUp':
         case 'KeyW':
         case 'Space':
-            keys.up = true;
+            keys2d.up = true;
             break;
     }
 });
@@ -26,16 +26,16 @@ window.addEventListener('keyup', (e) => {
     switch (e.code) {
         case 'ArrowRight':
         case 'KeyD':
-            keys.right = false;
+            keys2d.right = false;
             break;
         case 'ArrowLeft':
         case 'KeyA':
-            keys.left = false;
+            keys2d.left = false;
             break;
         case 'ArrowUp':
         case 'KeyW':
         case 'Space':
-            keys.up = false;
+            keys2d.up = false;
             break;
     }
 });

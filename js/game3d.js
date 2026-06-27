@@ -5,7 +5,7 @@ let animationId;
 
 // Three.js variables
 let scene, camera, renderer;
-let player;
+let player3d;
 let platforms = []; 
 let hurdles = [];
 
@@ -18,7 +18,7 @@ let baseSpeed = 0.15; // WASD speed
 let currentSpeed = baseSpeed;
 
 // Input Tracking
-const keys = { w: false, a: false, s: false, d: false };
+const keys3d = { w: false, a: false, s: false, d: false };
 
 // Animation timer
 let clock = new THREE.Clock();
@@ -182,9 +182,9 @@ function init3D() {
 
     generateObby();
 
-    player = createMinecraftCharacter();
-    player.position.set(0, 3, 0);
-    scene.add(player);
+    player3d = createMinecraftCharacter();
+    player3d.position.set(0, 3, 0);
+    scene.add(player3d);
 
     window.addEventListener('keydown', handleKeyDown, false);
     window.addEventListener('keyup', handleKeyUp, false);
@@ -200,10 +200,10 @@ function onWindowResize() {
 function handleKeyDown(event) {
     if (gameOver) return;
     const code = event.code;
-    if (code === 'KeyW' || code === 'ArrowUp') keys.w = true;
-    if (code === 'KeyS' || code === 'ArrowDown') keys.s = true;
-    if (code === 'KeyA' || code === 'ArrowLeft') keys.a = true;
-    if (code === 'KeyD' || code === 'ArrowRight') keys.d = true;
+    if (code === 'KeyW' || code === 'ArrowUp') keys3d.w = true;
+    if (code === 'KeyS' || code === 'ArrowDown') keys3d.s = true;
+    if (code === 'KeyA' || code === 'ArrowLeft') keys3d.a = true;
+    if (code === 'KeyD' || code === 'ArrowRight') keys3d.d = true;
 
     if (code === 'Space') {
         if (!isJumping) {
@@ -215,10 +215,10 @@ function handleKeyDown(event) {
 
 function handleKeyUp(event) {
     const code = event.code;
-    if (code === 'KeyW' || code === 'ArrowUp') keys.w = false;
-    if (code === 'KeyS' || code === 'ArrowDown') keys.s = false;
-    if (code === 'KeyA' || code === 'ArrowLeft') keys.a = false;
-    if (code === 'KeyD' || code === 'ArrowRight') keys.d = false;
+    if (code === 'KeyW' || code === 'ArrowUp') keys3d.w = false;
+    if (code === 'KeyS' || code === 'ArrowDown') keys3d.s = false;
+    if (code === 'KeyA' || code === 'ArrowLeft') keys3d.a = false;
+    if (code === 'KeyD' || code === 'ArrowRight') keys3d.d = false;
 }
 
 function checkCollisions(nextPos) {
@@ -238,7 +238,7 @@ function checkCollisions(nextPos) {
 
 function checkGround() {
     const feetBox = new THREE.Box3().setFromCenterAndSize(
-        new THREE.Vector3(player.position.x, player.position.y + 0.1, player.position.z), 
+        new THREE.Vector3(player3d.position.x, player3d.position.y + 0.1, player3d.position.z), 
         new THREE.Vector3(0.6, 0.4, 0.6)
     );
     
@@ -251,7 +251,7 @@ function checkGround() {
         
         p.userData.box.setFromObject(p);
         
-        // Slightly expand box upwards to catch player falling fast
+        // Slightly expand box upwards to catch player3d falling fast
         const pBox = p.userData.box.clone();
         pBox.max.y += 0.2;
 
@@ -276,7 +276,7 @@ function updateGame() {
     if (gameOver) return;
 
     // Difficulty scaling: Further Z you go (negative Z), faster you get
-    const distanceTraveled = Math.max(0, -player.position.z);
+    const distanceTraveled = Math.max(0, -player3d.position.z);
     currentSpeed = baseSpeed + (distanceTraveled * 0.0003); // Speed scales up slowly
     score = Math.floor(distanceTraveled);
     scoreDisplay.innerText = `Score: ${score}`;
@@ -284,26 +284,26 @@ function updateGame() {
     let dx = 0;
     let dz = 0;
 
-    if (keys.w) dz -= currentSpeed;
-    if (keys.s) dz += currentSpeed;
-    if (keys.a) dx -= currentSpeed;
-    if (keys.d) dx += currentSpeed;
+    if (keys3d.w) dz -= currentSpeed;
+    if (keys3d.s) dz += currentSpeed;
+    if (keys3d.a) dx -= currentSpeed;
+    if (keys3d.d) dx += currentSpeed;
 
-    let nextPos = player.position.clone();
+    let nextPos = player3d.position.clone();
     nextPos.x += dx;
     nextPos.z += dz;
 
     if (checkCollisions(nextPos)) {
-        player.position.x = nextPos.x;
-        player.position.z = nextPos.z;
+        player3d.position.x = nextPos.x;
+        player3d.position.z = nextPos.z;
     }
 
-    const skinObj = player.userData.skinObj;
+    const skinObj = player3d.userData.skinObj;
     const isMoving = dx !== 0 || dz !== 0;
     
     if (!isJumping && isMoving && skinObj && skinObj.leftArm) {
-        player.userData.time += currentSpeed * 2.5;
-        const swing = Math.sin(player.userData.time * 15);
+        player3d.userData.time += currentSpeed * 2.5;
+        const swing = Math.sin(player3d.userData.time * 15);
         skinObj.leftArm.rotation.x = swing;
         skinObj.rightArm.rotation.x = -swing;
         skinObj.leftLeg.rotation.x = -swing;
@@ -322,33 +322,33 @@ function updateGame() {
 
     if (dx !== 0 || dz !== 0) {
         const targetRotation = Math.atan2(dx, dz) + Math.PI;
-        let diff = targetRotation - player.rotation.y;
+        let diff = targetRotation - player3d.rotation.y;
         while (diff < -Math.PI) diff += Math.PI * 2;
         while (diff > Math.PI) diff -= Math.PI * 2;
-        player.rotation.y += diff * 0.15;
+        player3d.rotation.y += diff * 0.15;
     }
 
     // Y Physics
-    player.position.y += playerVelocityY;
+    player3d.position.y += playerVelocityY;
     playerVelocityY += gravity;
 
     const groundCheck = checkGround();
     
     if (groundCheck.onGround) {
-        player.position.y = groundCheck.groundY;
+        player3d.position.y = groundCheck.groundY;
         isJumping = false;
         playerVelocityY = 0;
     } else {
         isJumping = true; 
     }
 
-    // Camera follow behind player
-    camera.position.x += (player.position.x - camera.position.x) * 0.1;
-    camera.position.z += (player.position.z + 12 - camera.position.z) * 0.1; // 12 units behind
-    camera.position.y += (player.position.y + 6 - camera.position.y) * 0.1;  // 6 units above
-    camera.lookAt(player.position.x, player.position.y + 1, player.position.z - 5);
+    // Camera follow behind player3d
+    camera.position.x += (player3d.position.x - camera.position.x) * 0.1;
+    camera.position.z += (player3d.position.z + 12 - camera.position.z) * 0.1; // 12 units behind
+    camera.position.y += (player3d.position.y + 6 - camera.position.y) * 0.1;  // 6 units above
+    camera.lookAt(player3d.position.x, player3d.position.y + 1, player3d.position.z - 5);
 
-    if (player.position.y < -15) {
+    if (player3d.position.y < -15) {
         triggerGameOver();
     }
 }
@@ -377,15 +377,15 @@ function resetGame() {
     gameOver = false;
     score = 0;
     currentSpeed = baseSpeed;
-    player.position.set(0, 3, 0);
-    player.rotation.set(0, Math.PI, 0);
+    player3d.position.set(0, 3, 0);
+    player3d.rotation.set(0, Math.PI, 0);
     playerVelocityY = 0;
     isJumping = false;
     
-    keys.w = false;
-    keys.a = false;
-    keys.s = false;
-    keys.d = false;
+    keys3d.w = false;
+    keys3d.a = false;
+    keys3d.s = false;
+    keys3d.d = false;
 
     clock.start();
     
@@ -396,8 +396,13 @@ function resetGame() {
     animate();
 }
 
-window.startGame = function() {
+window.start3DGame = function() {
     document.getElementById('menu-container').style.display = 'none';
+    
+    // Hide 2D game canvas if it exists
+    const canvas2d = document.getElementById('gameCanvas');
+    if (canvas2d) canvas2d.style.display = 'none';
+
     gameContainer.style.display = 'block';
     gameUi.style.display = 'block';
     

@@ -26,9 +26,9 @@ class Player {
         let reachedGoal = false;
 
         // Horizontal movement
-        if (keys.right) {
+        if (keys2d.right) {
             this.velocityX = this.speed;
-        } else if (keys.left) {
+        } else if (keys2d.left) {
             this.velocityX = -this.speed;
         } else {
             this.velocityX = 0;
@@ -41,7 +41,7 @@ class Player {
         this.handleCollisions(level.getPlatforms(), 'horizontal');
 
         // Jumping
-        if (keys.up && this.grounded) {
+        if (keys2d.up && this.grounded) {
             this.velocityY = this.jumpForce;
             this.grounded = false;
         }
