@@ -11,6 +11,7 @@ class Player {
         this.jumpForce = -12;
         this.gravity = 0.5;
         this.grounded = false;
+        this.canDoubleJump = true;
         
         this.color = '#FF5722';
     }
@@ -20,6 +21,7 @@ class Player {
         this.y = y;
         this.velocityX = 0;
         this.velocityY = 0;
+        this.canDoubleJump = true;
     }
 
     update(level) {
@@ -41,9 +43,16 @@ class Player {
         this.handleCollisions(level.getPlatforms(), 'horizontal');
 
         // Jumping
-        if (keys2d.up && this.grounded) {
-            this.velocityY = this.jumpForce;
-            this.grounded = false;
+        if (keys2d.jumpJustPressed) {
+            keys2d.jumpJustPressed = false;
+            if (this.grounded) {
+                this.velocityY = this.jumpForce;
+                this.grounded = false;
+                this.canDoubleJump = true;
+            } else if (this.canDoubleJump) {
+                this.velocityY = this.jumpForce * 0.8;
+                this.canDoubleJump = false;
+            }
         }
 
         // Apply gravity
@@ -100,6 +109,7 @@ class Player {
                     if (this.velocityY > 0) { // Falling down
                         this.y = p.y - this.height;
                         this.grounded = true;
+                        this.canDoubleJump = true;
                     } else if (this.velocityY < 0) { // Jumping up (hitting ceiling)
                         this.y = p.y + p.h;
                     }

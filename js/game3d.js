@@ -9,6 +9,78 @@ let scene, camera, renderer;
 let player3d;
 let platforms = []; 
 let hurdles = [];
+let coins = [];
+let particles = [];
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playSound(type) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    if (type === 'jump') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.1);
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+    } else if (type === 'break') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.2);
+        gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.2);
+    } else if (type === 'crash') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 0.3);
+        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+    } else if (type === 'coin') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(1200, audioCtx.currentTime + 0.05);
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+    }
+}
+
+const coinGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.1, 16);
+coinGeo.rotateX(Math.PI / 2);
+const coinMat = new THREE.MeshStandardMaterial({ color: 0xFFD700, metalness: 0.8, roughness: 0.2 });
+
+function createCoin(x, y, z) {
+    const mesh = new THREE.Mesh(coinGeo, coinMat);
+    mesh.position.set(x, y, z);
+    mesh.userData = { box: new THREE.Box3() };
+    scene.add(mesh);
+    coins.push(mesh);
+}
+
+function createBreakParticles(x, y, z) {
+    const geom = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+    for(let i=0; i<10; i++) {
+        const mesh = new THREE.Mesh(geom, breakableGlassMaterial);
+        mesh.position.set(x + (Math.random()-0.5)*2, y, z + (Math.random()-0.5)*2);
+        mesh.userData = { 
+            vx: (Math.random()-0.5)*0.2, 
+            vy: Math.random()*0.2 + 0.1, 
+            vz: (Math.random()-0.5)*0.2 
+        };
+        scene.add(mesh);
+        particles.push(mesh);
+    }
+}
 
 // Physics variables
 let playerVelocityY = 0;
@@ -123,6 +195,7 @@ function generateObby() {
         if (type < 0.4) {
             // Normal platform
             createPlatform(0, 0, currentZ, 8, 1, 8, false, false);
+            if (Math.random() < 0.5) createCoin(0, 2, currentZ);
             
             // Maybe a hurdle
             if (Math.random() < 0.6) {
@@ -177,8 +250,13 @@ function createHurdle(x, y, z, width, height, depth, customMaterial = null) {
 
 function init3D() {
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87CEEB); // Sky blue
-    scene.fog = new THREE.FogExp2(0x87CEEB, 0.005);
+    if (currentMode === 'forest') {
+        scene.background = new THREE.Color(0x87CEEB); // Sky blue
+        scene.fog = new THREE.Fog(0x87CEEB, 20, 100);
+    } else {
+        scene.background = new THREE.Color(0x111122); // Night sky
+        scene.fog = new THREE.Fog(0x111122, 20, 80);
+    }
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -236,6 +314,7 @@ function handleKeyDown(event) {
         if (!isJumping) {
             playerVelocityY = jumpStrength;
             isJumping = true;
+            playSound('jump');
         }
     }
 }
@@ -288,6 +367,8 @@ function checkGround() {
                 // Break the glass!
                 p.userData.broken = true;
                 p.visible = false; 
+                playSound('break');
+                createBreakParticles(p.position.x, p.position.y, p.position.z);
                 continue;
             }
             
@@ -307,6 +388,38 @@ function updateGame() {
     currentSpeed = baseSpeed + (distanceTraveled * 0.0003); // Speed scales up slowly
     score = Math.floor(distanceTraveled);
     scoreDisplay.innerText = `Score: ${score}`;
+
+    // Update Particles
+    for (let i = particles.length - 1; i >= 0; i--) {
+        let p = particles[i];
+        p.position.x += p.userData.vx;
+        p.position.y += p.userData.vy;
+        p.position.z += p.userData.vz;
+        p.userData.vy -= 0.01; // gravity
+        p.rotation.x += 0.1;
+        p.rotation.y += 0.1;
+        if (p.position.y < -20) {
+            scene.remove(p);
+            particles.splice(i, 1);
+        }
+    }
+    
+    // Check Coin collisions
+    const playerBox = new THREE.Box3().setFromCenterAndSize(
+        new THREE.Vector3(player3d.position.x, player3d.position.y + 1, player3d.position.z), 
+        new THREE.Vector3(1.2, 1.8, 1.2)
+    );
+    for (let i = coins.length - 1; i >= 0; i--) {
+        let c = coins[i];
+        c.rotation.y += 0.05; // Spin coin
+        c.userData.box.setFromObject(c);
+        if (playerBox.intersectsBox(c.userData.box)) {
+            scene.remove(c);
+            coins.splice(i, 1);
+            score += 10;
+            playSound('coin');
+        }
+    }
 
     let dx = 0;
     
@@ -378,9 +491,14 @@ function updateGame() {
     }
 
     // Camera follow behind player3d
-    camera.position.x += (player3d.position.x - camera.position.x) * 0.1;
+    let shakeX = 0, shakeY = 0;
+    if (gameOver) {
+        shakeX = (Math.random() - 0.5) * 0.5;
+        shakeY = (Math.random() - 0.5) * 0.5;
+    }
+    camera.position.x += (player3d.position.x - camera.position.x) * 0.1 + shakeX;
     camera.position.z += (player3d.position.z + 12 - camera.position.z) * 0.1; // 12 units behind
-    camera.position.y += (player3d.position.y + 6 - camera.position.y) * 0.1;  // 6 units above
+    camera.position.y += (player3d.position.y + 6 - camera.position.y) * 0.1 + shakeY;  // 6 units above
     camera.lookAt(player3d.position.x, player3d.position.y + 1, player3d.position.z - 5);
 
     if (player3d.position.y < -15) {
@@ -398,6 +516,7 @@ function animate() {
 function triggerGameOver() {
     gameOver = true;
     gameStarted = false;
+    playSound('crash');
     gameOverScreen.style.display = 'block';
     
     // High Score Logic
@@ -418,6 +537,10 @@ function resetGame() {
     platforms = [];
     hurdles.forEach(h => scene.remove(h));
     hurdles = [];
+    coins.forEach(c => scene.remove(c));
+    coins = [];
+    particles.forEach(p => scene.remove(p));
+    particles = [];
     
     gameOver = false;
     score = 0;
@@ -495,6 +618,7 @@ function generateForest() {
         }
         
         createPlatform(0, 0, currentZ, 12, 2, 8, false, false, jungleMaterial);
+        if (Math.random() < 0.5) createCoin(0, 2.5, currentZ);
         
         // Add hurdles - limited to 1 per platform to avoid impossible walls
         if (Math.random() < 0.5) {

@@ -54,9 +54,8 @@ class Level {
 
     loadLevel(index) {
         if (index >= this.levels.length) {
-            // Game beaten! Reset to level 1 for now
+            // Game beaten! Reset to level 1 seamlessly
             index = 0;
-            alert("You beat all the levels! Restarting...");
         }
         this.currentLevelIndex = index;
         const currentData = this.levels[this.currentLevelIndex];

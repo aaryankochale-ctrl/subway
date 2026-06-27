@@ -17,6 +17,7 @@ window.addEventListener('keydown', (e) => {
         case 'ArrowUp':
         case 'KeyW':
         case 'Space':
+            if (!keys2d.up) keys2d.jumpJustPressed = true;
             keys2d.up = true;
             break;
     }

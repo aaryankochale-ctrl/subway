@@ -6,23 +6,50 @@ let player2d;
 
 // Wait to start game until level is selected
 let gameLoopRunning = false;
+let transitioning = false;
+let levelCompleteText = "";
 
 function gameLoop() {
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Background gradient
+    let gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, '#87CEEB'); 
+    gradient.addColorStop(1, '#E0F6FF'); 
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     // Update player and check for level complete
-    let reachedGoal = player2d.update(level);
-    
-    if (reachedGoal) {
-        level.nextLevel();
-        let start = level.getStartPosition();
-        player2d.setPosition(start.x, start.y);
+    if (!transitioning) {
+        let reachedGoal = player2d.update(level);
+        
+        if (reachedGoal) {
+            transitioning = true;
+            levelCompleteText = "Level Complete!";
+            if (level.currentLevelIndex + 1 >= level.levels.length) {
+                levelCompleteText = "You Win!";
+            }
+            
+            setTimeout(() => {
+                level.nextLevel();
+                let start = level.getStartPosition();
+                player2d.setPosition(start.x, start.y);
+                transitioning = false;
+            }, 1500);
+        }
     }
     
     // Draw
     level.draw(ctx);
     player2d.draw(ctx);
+    
+    if (transitioning) {
+        ctx.fillStyle = `rgba(0, 0, 0, 0.7)`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 48px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(levelCompleteText, canvas.width/2, canvas.height/2);
+    }
     
     // Request next frame
     requestAnimationFrame(gameLoop);
