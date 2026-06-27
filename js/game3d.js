@@ -2,6 +2,7 @@ let gameStarted = false;
 let gameOver = false;
 let score = 0;
 let animationId;
+let currentMode = 'obby';
 
 // Three.js variables
 let scene, camera, renderer;
@@ -37,6 +38,10 @@ roadTexture.wrapS = THREE.RepeatWrapping;
 roadTexture.wrapT = THREE.RepeatWrapping;
 const barkTexture = textureLoader.load('assets/bark.png');
 const leavesTexture = textureLoader.load('assets/leaves.png');
+const jungleTexture = textureLoader.load('assets/jungle_floor.png');
+jungleTexture.wrapS = THREE.RepeatWrapping;
+jungleTexture.wrapT = THREE.RepeatWrapping;
+const obstacleTexture = textureLoader.load('assets/obstacle.png');
 
 const glassMaterial = new THREE.MeshStandardMaterial({
     color: 0x88ccff, 
@@ -58,6 +63,23 @@ const hurdleMaterial = new THREE.MeshStandardMaterial({
 });
 const platformMaterial = new THREE.MeshStandardMaterial({
     map: roadTexture, 
+    roughness: 0.8
+});
+const jungleMaterial = new THREE.MeshStandardMaterial({
+    map: jungleTexture,
+    roughness: 1.0
+});
+const obstacleMaterial = new THREE.MeshStandardMaterial({
+    map: obstacleTexture,
+    roughness: 0.8
+});
+const barkMaterial = new THREE.MeshStandardMaterial({
+    map: barkTexture,
+    roughness: 0.9
+});
+const leavesMaterial = new THREE.MeshStandardMaterial({
+    map: leavesTexture,
+    color: 0x55ff55,
     roughness: 0.8
 });
 
@@ -120,9 +142,9 @@ function generateObby() {
     }
 }
 
-function createPlatform(x, y, z, width, height, depth, isGlass, isBreakable) {
+function createPlatform(x, y, z, width, height, depth, isGlass, isBreakable, customMaterial = null) {
     const geometry = new THREE.BoxGeometry(width, height, depth);
-    const material = isGlass ? (isBreakable ? breakableGlassMaterial : glassMaterial) : platformMaterial;
+    const material = customMaterial ? customMaterial : (isGlass ? (isBreakable ? breakableGlassMaterial : glassMaterial) : platformMaterial);
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(x, y, z);
     mesh.castShadow = true;
@@ -139,9 +161,9 @@ function createPlatform(x, y, z, width, height, depth, isGlass, isBreakable) {
     platforms.push(mesh);
 }
 
-function createHurdle(x, y, z, width, height, depth) {
+function createHurdle(x, y, z, width, height, depth, customMaterial = null) {
     const geometry = new THREE.BoxGeometry(width, height, depth);
-    const mesh = new THREE.Mesh(geometry, hurdleMaterial);
+    const mesh = new THREE.Mesh(geometry, customMaterial ? customMaterial : hurdleMaterial);
     mesh.position.set(x, y, z);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
@@ -180,7 +202,11 @@ function init3D() {
     dirLight.shadow.camera.far = 300;
     scene.add(dirLight);
 
-    generateObby();
+    if (currentMode === 'forest') {
+        generateForest();
+    } else {
+        generateObby();
+    }
 
     player3d = createMinecraftCharacter();
     player3d.position.set(0, 3, 0);
@@ -389,14 +415,19 @@ function resetGame() {
 
     clock.start();
     
-    generateObby();
+    if (currentMode === 'forest') {
+        generateForest();
+    } else {
+        generateObby();
+    }
     
     gameOverScreen.style.display = 'none';
     gameStarted = true;
     animate();
 }
 
-window.start3DGame = function() {
+window.start3DGame = function(mode = 'obby') {
+    currentMode = mode;
     document.getElementById('menu-container').style.display = 'none';
     
     // Hide 2D game canvas if it exists
@@ -414,3 +445,57 @@ window.start3DGame = function() {
 };
 
 document.getElementById('restart-btn').addEventListener('click', resetGame);
+
+function generateForest() {
+    // Starting platform
+    createPlatform(0, 0, 0, 10, 2, 10, false, false, jungleMaterial);
+
+    let currentZ = -10;
+    
+    for (let i = 0; i < 60; i++) {
+        if (Math.random() < 0.15) {
+            currentZ -= (2 + Math.random() * 2);
+        }
+        
+        createPlatform(0, 0, currentZ, 12, 2, 8, false, false, jungleMaterial);
+        
+        // Add hurdles
+        if (Math.random() < 0.5) {
+            let numHurdles = Math.floor(Math.random() * 3) + 1;
+            for (let h = 0; h < numHurdles; h++) {
+                let xPos = (Math.random() - 0.5) * 8;
+                createHurdle(xPos, 1.5, currentZ + (Math.random()-0.5)*4, 1.5, 2, 1, obstacleMaterial);
+            }
+        }
+        
+        // Add trees on the sides
+        if (Math.random() < 0.8) {
+            createTree(-5.5 - Math.random() * 2, currentZ);
+        }
+        if (Math.random() < 0.8) {
+            createTree(5.5 + Math.random() * 2, currentZ);
+        }
+        
+        currentZ -= 8;
+    }
+}
+
+function createTree(x, z) {
+    // Trunk
+    const trunkGeo = new THREE.CylinderGeometry(0.5, 0.5, 4);
+    const trunk = new THREE.Mesh(trunkGeo, barkMaterial);
+    trunk.position.set(x, 3, z);
+    trunk.castShadow = true;
+    trunk.receiveShadow = true;
+    scene.add(trunk);
+    platforms.push(trunk); 
+    
+    // Leaves
+    const leavesGeo = new THREE.BoxGeometry(3, 3, 3);
+    const leaves = new THREE.Mesh(leavesGeo, leavesMaterial);
+    leaves.position.set(x, 6, z);
+    leaves.castShadow = true;
+    leaves.receiveShadow = true;
+    scene.add(leaves);
+    platforms.push(leaves);
+}
