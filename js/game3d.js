@@ -487,6 +487,7 @@ function createTree(x, z) {
     trunk.position.set(x, 3, z);
     trunk.castShadow = true;
     trunk.receiveShadow = true;
+    trunk.userData = { box: new THREE.Box3(), broken: false };
     scene.add(trunk);
     platforms.push(trunk); 
     
@@ -496,6 +497,7 @@ function createTree(x, z) {
     leaves.position.set(x, 6, z);
     leaves.castShadow = true;
     leaves.receiveShadow = true;
+    leaves.userData = { box: new THREE.Box3(), broken: false };
     scene.add(leaves);
     platforms.push(leaves);
 }
