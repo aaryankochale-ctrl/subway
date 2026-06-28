@@ -150,3 +150,44 @@ body {
     color: #ff5252;
     margin-top: 0;
 }
+
+/* Mobile Controls */
+#mobile-controls {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    justify-content: space-between;
+    padding: 0 20px;
+    box-sizing: border-box;
+    z-index: 1000;
+    pointer-events: none;
+}
+.control-group {
+    display: flex;
+    gap: 15px;
+    pointer-events: auto;
+}
+.control-btn {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    color: white;
+    font-size: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: auto;
+}
+.control-btn:active {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+@media (min-width: 768px) {
+    #mobile-controls {
+        display: none !important;
+    }
+}

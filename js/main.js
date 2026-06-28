@@ -66,6 +66,10 @@ window.start2DGame = function(levelIndex) {
     const canvas = document.getElementById('gameCanvas');
     canvas.style.display = 'block';
     
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+        document.getElementById('mobile-controls').style.display = 'flex';
+    }
+    
     level = new Level();
     level.loadLevel(levelIndex);
     let start = level.getStartPosition();

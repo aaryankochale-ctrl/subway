@@ -579,6 +579,10 @@ window.start3DGame = function(mode = 'obby') {
     gameContainer.style.display = 'block';
     gameUi.style.display = 'block';
     
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+        document.getElementById('mobile-controls').style.display = 'flex';
+    }
+    
     if (!scene) {
         init3D();
     }
@@ -604,6 +608,7 @@ document.getElementById('back-menu-btn').addEventListener('click', () => {
     
     document.getElementById('menu-container').style.display = 'flex';
     if (window.updateHighScoresMenu) window.updateHighScoresMenu();
+    document.getElementById('mobile-controls').style.display = 'none';
 });
 
 function generateForest() {

@@ -40,3 +40,44 @@ window.addEventListener('keyup', (e) => {
             break;
     }
 });
+
+function setupMobileControls() {
+    const btnLeft = document.getElementById('btn-left');
+    const btnRight = document.getElementById('btn-right');
+    const btnJump = document.getElementById('btn-jump');
+    
+    if (!btnLeft) return;
+
+    function bindBtn(btn, key2dName, key3dName) {
+        btn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (key2dName) {
+                keys2d[key2dName] = true;
+                if (key2dName === 'up') {
+                    if (!keys2d.up) keys2d.jumpJustPressed = true;
+                }
+            }
+            if (key3dName && typeof keys3d !== 'undefined') keys3d[key3dName] = true;
+            
+            if (key3dName === 'space' && typeof playerVelocityY !== 'undefined') {
+                if (!isJumping) {
+                    playerVelocityY = typeof jumpStrength !== 'undefined' ? jumpStrength : 0.35;
+                    isJumping = true;
+                    if (typeof playSound === 'function') playSound('jump');
+                }
+            }
+        }, { passive: false });
+        
+        btn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (key2dName) keys2d[key2dName] = false;
+            if (key3dName && typeof keys3d !== 'undefined') keys3d[key3dName] = false;
+        }, { passive: false });
+    }
+
+    bindBtn(btnLeft, 'left', 'a');
+    bindBtn(btnRight, 'right', 'd');
+    bindBtn(btnJump, 'up', 'space');
+}
+
+document.addEventListener('DOMContentLoaded', setupMobileControls);
