@@ -34,32 +34,32 @@ class Level {
         let direction = 1; // 1 for right, -1 for left
         
         for (let i = 0; i < numPlatforms; i++) {
-            // Gap between 40 and 140 pixels (easily jumpable, max jump is ~400px)
-            let gapX = 40 + this.random(seed++) * 100;
+            // Horizontal gap between 40 and 120 pixels
+            let gapX = 40 + this.random(seed++) * 80;
             
-            // Y diff between -80 and +60 (easily jumpable, max height is ~230px)
-            let gapY = -80 + this.random(seed++) * 140;
+            // Vertical gap strictly upwards between 50 and 120 pixels
+            let gapY = 50 + this.random(seed++) * 70;
             
             let platW = 50 + this.random(seed++) * 50;
             
             let nextX;
             if (direction === 1) {
                 nextX = currX + currW + gapX;
-                if (nextX + platW > 750) { // Hit right wall
+                if (nextX + platW > 750) { 
                     direction = -1;
-                    nextX = currX - gapX - platW; // bounce back
+                    nextX = currX - gapX - platW; 
+                    if (nextX < 50) nextX = 50;
                 }
             } else {
                 nextX = currX - gapX - platW;
-                if (nextX < 50) { // Hit left wall
+                if (nextX < 50) { 
                     direction = 1;
-                    nextX = currX + currW + gapX; // bounce back
+                    nextX = currX + currW + gapX; 
+                    if (nextX + platW > 750) nextX = 750 - platW;
                 }
             }
             
-            let nextY = currY + gapY;
-            if (nextY < 120) nextY = 180;
-            if (nextY > 500) nextY = 450;
+            let nextY = currY - gapY;
             
             this.platforms.push({ x: nextX, y: nextY, w: platW, h: 20, color: '#8B4513' });
             
@@ -78,12 +78,6 @@ class Level {
     }
 
     draw(ctx) {
-        // Draw level indicator
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-        ctx.font = 'bold 24px Arial';
-        ctx.textAlign = 'left';
-        ctx.fillText("Level " + (this.currentLevelIndex + 1) + " / 100", 20, 40);
-
         // Draw platforms
         this.platforms.forEach(platform => {
             ctx.fillStyle = platform.color;

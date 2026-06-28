@@ -37,9 +37,34 @@ function gameLoop() {
         }
     }
     
+    // Camera
+    if (typeof window.cameraY === 'undefined') window.cameraY = 0;
+    
+    if (player2d) {
+        // Track player vertically, keeping them in the lower half of screen
+        let targetY = player2d.y - canvas.height / 2 + 100;
+        // Don't go below ground
+        if (targetY > 0) targetY = 0;
+        // Smooth camera follow
+        window.cameraY += (targetY - window.cameraY) * 0.1;
+    }
+    
+    ctx.save();
+    ctx.translate(0, -window.cameraY);
+    
     // Draw
-    level.draw(ctx);
-    player2d.draw(ctx);
+    if (level) level.draw(ctx);
+    if (player2d) player2d.draw(ctx);
+    
+    ctx.restore();
+    
+    // Draw UI overlay
+    if (level) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.font = 'bold 24px Arial';
+        ctx.textAlign = 'left';
+        ctx.fillText("Level " + (level.currentLevelIndex + 1) + " / 100", 20, 40);
+    }
     
     if (transitioning) {
         ctx.fillStyle = `rgba(0, 0, 0, 0.7)`;
@@ -74,6 +99,7 @@ window.start2DGame = function(levelIndex) {
     level.loadLevel(levelIndex);
     let start = level.getStartPosition();
     player2d = new Player(start.x, start.y);
+    window.cameraY = 0;
     
     if (!gameLoopRunning) {
         gameLoopRunning = true;

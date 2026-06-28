@@ -68,8 +68,9 @@ class Player {
         // Screen bounds
         if (this.x < 0) this.x = 0;
         if (this.x + this.width > 800) this.x = 800 - this.width;
-        if (this.y > 600) {
-            // Respawn if falls off
+        let bottomLimit = (typeof window.cameraY !== 'undefined' ? window.cameraY : 0) + 600;
+        if (this.y > bottomLimit) {
+            // Respawn if falls off screen
             let start = level.getStartPosition();
             this.setPosition(start.x, start.y);
         }
