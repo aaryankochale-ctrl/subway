@@ -28,20 +28,21 @@ class Level {
         let numPlatforms = 5 + Math.floor(this.random(seed++) * 5) + Math.floor(index / 5);
         
         let currX = 50;
-        let currY = 450;
+        let currY = 550; // Start calculating gaps from the ground!
         let currW = 50; // virtual start platform width
         
         let direction = 1; // 1 for right, -1 for left
         
         for (let i = 0; i < numPlatforms; i++) {
-            // Horizontal gap between 10 and 60 pixels (very easy)
-            let gapX = 10 + this.random(seed++) * 50;
+            // Horizontal gap between 10 and 50 pixels (easy)
+            let gapX = 10 + this.random(seed++) * 40;
             
-            // Vertical gap strictly upwards between 40 and 80 pixels
-            let gapY = 40 + this.random(seed++) * 40;
+            // Vertical gap strictly upwards between 90 and 130 pixels
+            // This guarantees enough headroom so platforms never create a "roof" you can hit your head on!
+            let gapY = 90 + this.random(seed++) * 40;
             
-            // Wider platforms: 80 to 180 pixels
-            let platW = 80 + this.random(seed++) * 100;
+            // Wider platforms: 80 to 140 pixels
+            let platW = 80 + this.random(seed++) * 60;
             
             let nextX;
             if (direction === 1) {
