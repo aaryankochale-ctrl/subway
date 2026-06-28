@@ -85,20 +85,40 @@ class Level {
             ctx.fillRect(platform.x, platform.y, platform.w, platform.h);
         });
         
-        // Draw goal (Door)
+        // Draw goal (Open Cool Door)
         if (this.goal) {
-            // Door frame
-            ctx.fillStyle = '#4A3018'; // Dark brown
+            // Door frame (dark background)
+            ctx.fillStyle = '#2A1810'; 
             ctx.fillRect(this.goal.x, this.goal.y, this.goal.w, this.goal.h);
             
-            // Door inner panel
-            ctx.fillStyle = '#8B5A2B'; // Lighter brown
+            // Glowing Portal inside the door frame (the exit)
+            let portalGradient = ctx.createLinearGradient(this.goal.x, this.goal.y, this.goal.x, this.goal.y + this.goal.h);
+            portalGradient.addColorStop(0, '#00FFFF'); // Cyan glow
+            portalGradient.addColorStop(1, '#FFFFFF'); // Bright white
+            ctx.fillStyle = portalGradient;
             ctx.fillRect(this.goal.x + 4, this.goal.y + 4, this.goal.w - 8, this.goal.h - 4);
             
-            // Doorknob
+            // The wooden door, swung open to the right with 3D perspective
+            ctx.fillStyle = '#8B5A2B'; // Wood color
+            ctx.beginPath();
+            let hingeX = this.goal.x + this.goal.w - 4;
+            let swingX = this.goal.x + this.goal.w + 16;
+            ctx.moveTo(hingeX, this.goal.y + 4); // Top Hinge
+            ctx.lineTo(swingX, this.goal.y + 12); // Top Swing
+            ctx.lineTo(swingX, this.goal.y + this.goal.h - 8); // Bottom Swing
+            ctx.lineTo(hingeX, this.goal.y + this.goal.h); // Bottom Hinge
+            ctx.closePath();
+            ctx.fill();
+            
+            // Outline the open door slightly
+            ctx.strokeStyle = '#4A3018';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Doorknob on the swung open door
             ctx.fillStyle = '#FFD700'; // Gold
             ctx.beginPath();
-            ctx.arc(this.goal.x + this.goal.w - 8, this.goal.y + this.goal.h / 2, 3, 0, Math.PI * 2);
+            ctx.arc(swingX - 4, this.goal.y + this.goal.h / 2, 3, 0, Math.PI * 2);
             ctx.fill();
         }
     }
