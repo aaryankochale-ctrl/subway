@@ -22,34 +22,52 @@ class Level {
         this.platforms = [];
         this.platforms.push({ x: 0, y: 550, w: 800, h: 50, color: '#4CAF50' }); // Ground
         
-        this.startPosition = { x: 385, y: 450 };
+        this.startPosition = { x: 50, y: 450 };
         
         // As you progress through the 100 levels, there are more platforms
         let numPlatforms = 5 + Math.floor(this.random(seed++) * 5) + Math.floor(index / 5);
         
+        let currX = 50;
         let currY = 550; // Start calculating gaps from the ground
-        let prevX = 350; // Start in the middle
+        let currW = 50; // virtual start platform width
+        
+        let direction = 1; // 1 for right, -1 for left
         
         for (let i = 0; i < numPlatforms; i++) {
-            // Vertical gap is exactly 90 pixels (very easy to jump)
-            let gapY = 90;
+            // Horizontal gap between 20 and 80 pixels
+            let gapX = 20 + this.random(seed++) * 60;
+            
+            // Vertical gap between 95 and 130 pixels
+            // This is perfect for double jumps, and mathematically eliminates "roof bonking"
+            let gapY = 95 + this.random(seed++) * 35;
+            
+            // Varied platform widths for creativity: 70 to 150 pixels
+            let platW = 70 + this.random(seed++) * 80;
+            
+            let nextX;
+            if (direction === 1) {
+                nextX = currX + currW + gapX;
+                if (nextX + platW > 750) { 
+                    direction = -1;
+                    nextX = currX - gapX - platW; 
+                    if (nextX < 50) nextX = 50;
+                }
+            } else {
+                nextX = currX - gapX - platW;
+                if (nextX < 50) { 
+                    direction = 1;
+                    nextX = currX + currW + gapX; 
+                    if (nextX + platW > 750) nextX = 750 - platW;
+                }
+            }
+            
             let nextY = currY - gapY;
-            
-            // Next platform is placed left or right by at most 120 pixels from the center of the previous
-            let gapX = -120 + this.random(seed++) * 240; 
-            let nextX = prevX + gapX;
-            
-            // Keep strictly inside the screen bounds
-            if (nextX < 50) nextX = 50 + this.random(seed++) * 50;
-            if (nextX > 630) nextX = 630 - this.random(seed++) * 50;
-            
-            // Fixed, wide platforms for easy landing
-            let platW = 120;
             
             this.platforms.push({ x: nextX, y: nextY, w: platW, h: 20, color: '#8B4513' });
             
+            currX = nextX;
             currY = nextY;
-            prevX = nextX;
+            currW = platW;
             
             if (i === numPlatforms - 1) {
                 this.goal = { x: nextX + platW/2 - 15, y: nextY - 50, w: 30, h: 50 };
