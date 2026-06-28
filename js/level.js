@@ -34,13 +34,14 @@ class Level {
         let direction = 1; // 1 for right, -1 for left
         
         for (let i = 0; i < numPlatforms; i++) {
-            // Horizontal gap between 40 and 120 pixels
-            let gapX = 40 + this.random(seed++) * 80;
+            // Horizontal gap between 10 and 60 pixels (very easy)
+            let gapX = 10 + this.random(seed++) * 50;
             
-            // Vertical gap strictly upwards between 50 and 120 pixels
-            let gapY = 50 + this.random(seed++) * 70;
+            // Vertical gap strictly upwards between 40 and 80 pixels
+            let gapY = 40 + this.random(seed++) * 40;
             
-            let platW = 50 + this.random(seed++) * 50;
+            // Wider platforms: 80 to 180 pixels
+            let platW = 80 + this.random(seed++) * 100;
             
             let nextX;
             if (direction === 1) {
