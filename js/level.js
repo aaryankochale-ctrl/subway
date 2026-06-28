@@ -69,7 +69,7 @@ class Level {
             currW = platW;
             
             if (i === numPlatforms - 1) {
-                this.goal = { x: nextX + platW/2 - 20, y: nextY - 40, w: 40, h: 40, color: '#FFD700' };
+                this.goal = { x: nextX + platW/2 - 15, y: nextY - 50, w: 30, h: 50 };
             }
         }
     }
@@ -85,10 +85,21 @@ class Level {
             ctx.fillRect(platform.x, platform.y, platform.w, platform.h);
         });
         
-        // Draw goal
+        // Draw goal (Door)
         if (this.goal) {
-            ctx.fillStyle = this.goal.color;
+            // Door frame
+            ctx.fillStyle = '#4A3018'; // Dark brown
             ctx.fillRect(this.goal.x, this.goal.y, this.goal.w, this.goal.h);
+            
+            // Door inner panel
+            ctx.fillStyle = '#8B5A2B'; // Lighter brown
+            ctx.fillRect(this.goal.x + 4, this.goal.y + 4, this.goal.w - 8, this.goal.h - 4);
+            
+            // Doorknob
+            ctx.fillStyle = '#FFD700'; // Gold
+            ctx.beginPath();
+            ctx.arc(this.goal.x + this.goal.w - 8, this.goal.y + this.goal.h / 2, 3, 0, Math.PI * 2);
+            ctx.fill();
         }
     }
 
