@@ -24,7 +24,7 @@ function gameLoop() {
         if (reachedGoal) {
             transitioning = true;
             levelCompleteText = "Level Complete!";
-            if (level.currentLevelIndex + 1 >= level.levels.length) {
+            if (level.currentLevelIndex + 1 >= 100) {
                 levelCompleteText = "You Win!";
             }
             
